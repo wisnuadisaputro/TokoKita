@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:tokokita/helpers/api.dart';
 import 'package:tokokita/helpers/api_url.dart';
 import 'package:tokokita/model/produk.dart';
@@ -31,7 +32,7 @@ class ProdukBloc {
   }
 
   static Future<bool> updateProduk({required Produk produk}) async {
-    String apiUrl = ApiUrl.updateProduk(produk.id);
+    String apiUrl = ApiUrl.updateProduk(produk.id!);
 
     var body = {
       "kode_produk": produk.kodeProduk,
@@ -39,7 +40,7 @@ class ProdukBloc {
       "harga": produk.hargaProduk.toString()
     };
     print("Body : $body");
-    var response = await Api().post(apiUrl, body);
+    var response = await Api().put(apiUrl, body);
     var jsonObj = json.decode(response.body);
     return jsonObj['code'] == 200;
   }

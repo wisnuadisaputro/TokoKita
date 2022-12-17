@@ -1,17 +1,18 @@
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:tokokita/helpers/user_info.dart';
 import 'app_exception.dart';
 
 class Api {
-  Future<dynamic> post(String url, dynamic data) async {
+  Future<dynamic> post(dynamic url, dynamic data) async {
     var token = await UserInfo().getToken();
     var responseJson;
-    var uri = Uri.parse(url);
     try {
       final response = await http.post(Uri.parse(url),
           body: data,
           headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
+      print('hasil response : ${response.body}');
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
@@ -19,14 +20,29 @@ class Api {
     return responseJson;
   }
 
-  Future<dynamic> get(dynamic url) async {
+  Future<dynamic> put(dynamic url, dynamic data) async {
     var token = await UserInfo().getToken();
     var responseJson;
-    var uri = Uri.parse(url);
     try {
-      final response = await http.get(uri,
+      final response = await http.put(Uri.parse(url),
+          body: data,
+          headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
+      print('hasil response ($data) : ${response.body}');
+      responseJson = _returnResponse(response);
+    } on SocketException {
+      throw FetchDataException('No Internet connection');
+    }
+    return responseJson;
+  }
+
+  Future<http.Response> get(String url) async {
+    var token = await UserInfo().getToken();
+    http.Response responseJson;
+    try {
+      final response = await http.get(Uri.parse(url),
           headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
       responseJson = _returnResponse(response);
+      print('hasil $url = ${response.body}');
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }
@@ -36,10 +52,10 @@ class Api {
   Future<dynamic> delete(String url) async {
     var token = await UserInfo().getToken();
     var responseJson;
-    var uri = Uri.parse(url);
     try {
-      final response = await http.delete(uri,
+      final response = await http.delete(Uri.parse(url),
           headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
+      print('hasil delete = ${response.body}');
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
@@ -61,7 +77,7 @@ class Api {
       case 500:
       default:
         throw FetchDataException(
-            'Error  occured  while  Communication  with  Server  with  StatusCode :${response.statusCode}');
+            'Error occured while Communication with Server with StatusCode : ${response.statusCode}');
     }
   }
 }
